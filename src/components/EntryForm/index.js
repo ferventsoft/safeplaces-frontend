@@ -7,19 +7,20 @@ import { Button, TextArea, TextInput } from '@wfp/ui';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useParams, useHistory } from 'react-router';
 import Geocode from 'react-geocode';
+import LocationSearchInput from './autoComplete';
 
 import {
   faCrosshairs,
   faMapMarkerQuestion,
   faTimes,
-  faLocationCircle,
 } from '@fortawesome/pro-solid-svg-icons';
 import DateInput from '../DateInput';
 import styles from './styles.module.scss';
 import { NavLink } from 'react-router-dom';
 import moment from 'moment';
 // set Google Maps Geocoding API for purposes of quota management. Its optional but recommended.
-Geocode.setApiKey(process.env.REACT_APP_GOOGLE_PLACES_KEY);
+// Geocode.setApiKey(process.env.REACT_APP_GOOGLE_PLACES_KEY);
+Geocode.setApiKey('AIzaSyAEvnUsLdSk7_zYZvNRKeNRrLE1TIjX5ZI');
 
 // set response language. Defaults to english.
 Geocode.setLanguage('en');
@@ -131,6 +132,39 @@ const EntryForm = ({ initialData, useInline }) => {
     history.push('/');
   };
 
+  const onAddressReceived = results => {
+    console.log('Hiren Got this address ', results);
+
+    const search = code => {
+      const find = components.find(e => e.types.includes(code));
+      return find ? find.long_name : '';
+    };
+    const components = results[0].address_components;
+    console.log(results[0].address_components);
+    setValue([
+      {
+        street: `${search('route')} ${search('street_number')}`,
+      },
+      {
+        postal: search('postal_code'),
+      },
+      { town: search('locality') },
+    ]);
+  };
+
+  const onLatLongReceived = values => {
+    console.log('Hiren Got this latLng ', values);
+
+    setValue([
+      {
+        latitude: values.lat,
+      },
+      {
+        longitude: values.lng,
+      },
+    ]);
+  };
+
   // if (load) return null;
   return (
     <form
@@ -161,6 +195,13 @@ const EntryForm = ({ initialData, useInline }) => {
           min={null}
           max={null}
           control={control}
+        />
+      </div>
+
+      <div>
+        <LocationSearchInput
+          latlongReceived={onLatLongReceived}
+          addressReceived={onAddressReceived}
         />
       </div>
 
@@ -199,10 +240,10 @@ const EntryForm = ({ initialData, useInline }) => {
           onClick={fromLatLng}
           icon={<FontAwesomeIcon icon={faCrosshairs} />}
         ></Button>
-        <Button
+        {/* <Button
           onClick={fromLatLng}
           icon={<FontAwesomeIcon icon={faLocationCircle} />}
-        ></Button>
+        ></Button> */}
       </div>
 
       <div className={styles.address}>

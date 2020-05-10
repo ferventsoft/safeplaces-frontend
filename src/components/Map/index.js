@@ -191,9 +191,9 @@ function Map({ addSelectedTrigger, trackPath }) {
   const [viewport, setViewport] = useState({
     width: 400,
     height: 300,
-    latitude: 37.7577,
-    longitude: -122.4376,
-    zoom: 8,
+    latitude: 13.473862,
+    longitude: 144.75418,
+    zoom: 12,
   });
   const mapRef = useRef();
 

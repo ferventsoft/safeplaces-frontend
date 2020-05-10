@@ -24,7 +24,7 @@ import {
 import { addTrackEntry } from '../../ducks/tracks';
 import { NavLink } from 'react-router-dom';
 import Tippy from '@tippy.js/react';
-import { addSelected } from '../../actions';
+import { addSelected, deleteSelected } from '../../actions';
 import SelectCase from '../SelectCase';
 import SettingsList from '../Settings/SettingsList';
 
@@ -32,8 +32,15 @@ function Sidebar({ addTrackEntryTrigger, track }) {
   // const [openNewEntry, setOpenNewEntry] = useState(false);
   const dispatch = useDispatch();
   const filteredTrackPath = useSelector(state => getFilteredTrackPath(state));
+  const selectedPath = useSelector(state => getSelectedTracks(state));
   const save = () => {
-    var blob = new Blob([JSON.stringify(track)], {
+    const newArray = {};
+    filteredTrackPath.forEach(element => {
+      newArray[element[0]] = element[1];
+    });
+
+    console.log('filteredTrackPath ', Object.values(newArray));
+    var blob = new Blob([JSON.stringify(Object.values(newArray))], {
       type: 'text/plain;charset=utf-8',
     });
     FileSaver.saveAs(blob, `export-${track.publish_date_utl}.json`);
@@ -121,6 +128,9 @@ function Sidebar({ addTrackEntryTrigger, track }) {
           iconReverse
           small
           icon={<FontAwesomeIcon icon={faPlusCircle} />}
+          onClick={() => {
+            dispatch(deleteSelected(selectedPath));
+          }}
         >
           Delete selected
         </Button>
@@ -167,6 +177,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   addTrackEntryTrigger: data => dispatch(addTrackEntry(data)),
+  deleteSelectedTrigger: data => dispatch(deleteSelected(data)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);

@@ -91,7 +91,7 @@ export default function SidebarContent() {
                 <Button
                   kind="primary"
                   icon={<FontAwesomeIcon icon={faTrashAlt} />}
-                  onClick={() => deleteTrackEntryTrigger(e.time)}
+                  onClick={() => deleteTrackEntryTrigger(e[1].time)}
                 ></Button>
               </div>
             </div>

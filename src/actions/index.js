@@ -19,6 +19,14 @@ export const addSelected = data => {
   };
 };
 
+export const deleteSelected = data => {
+  console.log('deleteSelected', data);
+  return {
+    type: types.DELETE_SELECTED_ENTRY,
+    data,
+  };
+};
+
 export const updateFilter = data => {
   return {
     type: types.UPDATE_FILTER,
