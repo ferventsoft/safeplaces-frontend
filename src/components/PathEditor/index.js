@@ -5,8 +5,9 @@ import Wrapper from '../Wrapper';
 import EntryForm from '../EntryForm';
 import { useSelector } from 'react-redux';
 import { getSelectedPointsData } from 'selectors/selectedPoints';
+import MapComponent from 'components/olMap';
 
-export default function PathEditor() {
+export default function PathEditor({ match }) {
   const [map, setMap] = useState(null);
   const selectedPointsData = useSelector(getSelectedPointsData);
   const updateMap = map => {
@@ -20,7 +21,9 @@ export default function PathEditor() {
       }
       sidebar={<Sidebar map={map} />}
     >
-      <Map
+      <MapComponent
+        currentPointId={match.params === undefined ? '' : match.params.action}
+        currentEntryId={match.params === undefined ? '' : match.params.patient}
         setMap={map => {
           updateMap(map);
         }}
