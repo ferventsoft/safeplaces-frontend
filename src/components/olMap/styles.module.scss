@@ -57,3 +57,34 @@
 .olPopupCloser:after {
   content: "✖";
 }
+.contextTitle small {
+  font-size: 12px;
+  font-family: bold;
+}
+.contextTitle p {
+  font-size: 12px;
+  font-family: bold;
+  }
+.contextTitle {
+font-size: 8px;
+}
+li.contextTitle:hover {
+    cursor: initial;
+    background-color: #fff !important;
+    color: #333 !important;
+}
+.editIcon {
+  background-image: url('../../assets/images/edit.png');
+}
+.removeIcon {
+  background-image: url('../../assets/images/remove.png');
+  
+}
+.contextIcon {
+  background-size: 16px 16px;
+    background-repeat: no-repeat;
+    background-position: left;
+    margin-left: 40px;
+    text-indent: 15px;
+    margin-left: 6px !important;
+}

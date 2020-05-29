@@ -173,7 +173,7 @@ export const styleEntryFeature = (feature, resolution) => {
       feature.get('selected') === undefined
         ? 'default'
         : feature.get('selected');
-    const num = feature.get('num') === undefined ? '400' : feature.get('num');
+    const num = feature.get('num') === undefined ? 'line' : feature.get('num');
     let trash =
       feature.get('trash') === undefined ? false : feature.get('trash');
     if (trash === 'true') {

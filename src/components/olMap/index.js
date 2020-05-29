@@ -10,10 +10,12 @@ import { defaults as defaultControls } from 'ol/control';
 import { GeoJSON } from 'ol/format';
 import { Point } from 'ol/geom';
 import Feature from 'ol/Feature';
+import { addSelected } from '../../ducks/selectedPoints';
 import LayerSwitcher from 'ol-layerlist';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
-
+import ContextMenu from 'ol-contextmenu';
+import 'ol-contextmenu/dist/ol-contextmenu.css';
 import { loadBaseMaps, styleEntryFeature } from './utils';
 import Track from './trackPath';
 import { getFilteredTrackPath } from '../../selectors';
@@ -22,6 +24,7 @@ import 'ol/ol.css';
 import 'ol-layerlist/src/ol-layerlist.css';
 import moment from 'moment';
 import { setMapCoordinate } from '../../ducks/map';
+import cases from '../../ducks/cases';
 import { connect } from 'react-redux';
 let content = null;
 
@@ -65,6 +68,7 @@ class MapComponent extends Component {
       return false;
     };
     this.initMap();
+    this.addContextMenu();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -191,10 +195,94 @@ class MapComponent extends Component {
       });
 
       this.map.on('singleclick', curobj.handleMapClick);
-      this.map.on('pointermove', curobj.handleMapOver.bind(this));
+      // this.map.on('pointermove', curobj.handleMapOver.bind(this));
     } catch (e) {
       console.log(e);
     }
+  }
+
+  removeMarker = obj => {
+    const { dispatch } = this.props;
+    dispatch(cases.actions.removeEntry(obj.data.marker.get('id')));
+  };
+
+  editMarker = obj => {
+    const { dispatch, history, currentEntryId } = this.props;
+    const id = obj.data.marker.get('id');
+    dispatch(addSelected([id]));
+    history.push(`/${currentEntryId}/edit/${id}`);
+  };
+
+  addContextMenu() {
+    this.map.getViewport().addEventListener('contextmenu', function (evt) {
+      evt.preventDefault();
+    });
+    const removeMarkerItem = {
+      text: 'Remove',
+      classname: `${styles.contextIcon} ${styles.removeIcon}`,
+      callback: this.removeMarker.bind(this),
+    };
+    const editMarkerItem = {
+      text: 'Edit',
+      classname: `${styles.contextIcon} ${styles.editIcon}`,
+      callback: this.editMarker.bind(this),
+    };
+    const contextmenu = new ContextMenu({
+      width: 170,
+      defaultItems: true, // defaultItems are (for now) Zoom In/Zoom Out
+      items: [],
+    });
+    const curobj = this;
+    contextmenu.on('beforeopen', function (evt) {
+      var feature = curobj.map.forEachFeatureAtPixel(evt.pixel, function (
+        ft,
+        l,
+      ) {
+        return ft;
+      });
+      if (feature) {
+        const {
+          cases: { entries },
+          currentEntryId,
+        } = curobj.props;
+        contextmenu.enable();
+        contextmenu.clear();
+        removeMarkerItem.data = { marker: feature };
+        editMarkerItem.data = { marker: feature };
+        const point = entries[currentEntryId].points[feature.get('id')];
+        if (point !== undefined && entries[currentEntryId] !== undefined) {
+          const text = `<div class="${styles.contextTitle}"><small>${
+            point.street
+          }</small>
+          <p>${moment(new Date(point.time)).format(
+            'ddd, MMM D, YYYY HH:mm',
+          )}</p></div>`;
+          const details = {
+            text: text,
+            classname: styles.contextTitle,
+          };
+
+          contextmenu.push(details);
+          contextmenu.push('-');
+        }
+
+        contextmenu.push(removeMarkerItem);
+        contextmenu.push(editMarkerItem);
+        contextmenu.extend(contextmenu.getDefaultItems());
+      } else {
+        contextmenu.clear();
+        contextmenu.disable();
+        contextmenu.extend(contextmenu.getDefaultItems());
+        contextmenu.close();
+      }
+      //  else if (restore) {
+      //   contextmenu.clear();
+      //   contextmenu.extend(contextmenu_items);
+      //   contextmenu.extend(contextmenu.getDefaultItems());
+      //   restore = false;
+      // }
+    });
+    this.map.addControl(contextmenu);
   }
 
   handleMapOver = evt => {

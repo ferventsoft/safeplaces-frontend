@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import Map from '../Map';
 import Sidebar from '../Sidebar';
 import Wrapper from '../Wrapper';
@@ -10,6 +11,7 @@ import MapComponent from 'components/olMap';
 export default function PathEditor({ match }) {
   const [map, setMap] = useState(null);
   const selectedPointsData = useSelector(getSelectedPointsData);
+  const history = useHistory();
   const updateMap = map => {
     setMap(map);
   };
@@ -24,6 +26,7 @@ export default function PathEditor({ match }) {
       <MapComponent
         currentPointId={match.params === undefined ? '' : match.params.action}
         currentEntryId={match.params === undefined ? '' : match.params.patient}
+        history={history}
         setMap={map => {
           updateMap(map);
         }}
