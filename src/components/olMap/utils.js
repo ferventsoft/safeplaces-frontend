@@ -186,6 +186,9 @@ export const styleEntryFeature = (feature, resolution) => {
         iconUrl = require(`../../assets/images/number-${
           seleted === 'true' ? 'selected' : 'default'
         }/number_${num}.png`);
+      } else {
+        iconUrl =
+          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
       }
       styleCache[num + seleted + trash] = new Style({
         image: new Icon({

@@ -187,9 +187,9 @@ function Sidebar({ addPathEntryTrigger, track }) {
               iconReverse
               small
               icon={<FontAwesomeIcon icon={faPlusCircle} />}
-              onClick={() =>
-                dispatch(cases.actions.removeEntries(selectedPathEntries))
-              }
+              onClick={() => {
+                dispatch(cases.actions.removeEntries(selectedPathEntries));
+              }}
             >
               Delete selected
             </Button>

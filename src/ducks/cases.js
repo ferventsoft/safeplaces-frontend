@@ -55,9 +55,9 @@ export default createSlice({
             trash: true,
           }),
       );
-      state.entries[state.currentCase].points = {
-        ...newState,
-      };
+      // state.entries[state.currentCase].points = {
+      //   ...newState,
+      // };
     },
   },
 });

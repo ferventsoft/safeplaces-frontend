@@ -35,9 +35,120 @@
       height: 24px !important;
       background-size: 24px 24px !important;
     }
+
+    .ol-multiselect {
+      top: 90px;
+      right: 8px;
+      background-color: white !important;
+      border-radius: 30px !important;
+      padding: 5px 8px !important;
+      color: #000;
+      font-size: 14px;
+    }
+
+    .ol-multiselect .ol-drawtype {
+      position: absolute;
+      right: 270px;
+      display: none;
+
+    }
+
+    .ol-multiselect[data="on"] .ol-drawtype {
+      display: inline-flex;
+    }
+
+    .ol-multiselect .ol-drawtype button {
+      border-radius: 50% !important;
+      background-color: white !important;
+      color: #000;
+      width: 30px !important;
+      height: 30px;
+      font-size: 20px;
+      padding: 0px !important;
+      margin-left: 10px;
+      cursor: pointer;
+
+
+    }
+
+    .ol-multiselect .ol-drawtype button:hover,
+    .ol-multiselect .ol-drawtype button:active {
+      background-color: #3333e6 !important;
+      color: #fff;
+    }
+
+
+    .ol-multiselect .ol-drawtype .circle::before {
+      content: 'O';
+    }
+
+    .ol-multiselect .ol-drawtype .ractangle::before {
+      content: '▭';
+    }
+
+    .ol-multiselect .ol-drawtype .freehand::before {
+      content: '⭔';
+    }
+
+    .ol-multiselect>div {
+      display: flex;
+    }
+
+    .ol-multiselect .enabled-notification {
+      position: fixed;
+      bottom: 50px;
+      right: 50px;
+      background-color: #504d69;
+      color: #fff;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .ol-multiselect[data='on'] .enabled-notification {
+      display: block;
+    }
+
+    .enabled-notification span {
+      background-color: #fff;
+      color: #000;
+      border-radius: 50%;
+      padding: 0px 5px;
+    }
+
+    .ol-multiselect button {
+      padding: 3px 10px !important;
+      width: 50px !important;
+      /* border-radius: 20px !important; */
+
+    }
+
+    .ol-multiselect button:focus {
+      outline: none;
+    }
+
+    .ol-multiselect button[data="on"] {
+      background-color: #43c229 !important;
+      border-right: #e4abab 20px solid !important;
+      border-radius: 30px 30px 30px 30px !important;
+    }
+
+    .ol-multiselect button[data="off"] {
+      background-color: #d41414 !important;
+      border-left: #aad6f5 20px solid !important;
+      border-radius: 30px 30px 30px 30px !important;
+    }
+
+    .ol-touch .ol-multiselect {
+      top: 80px;
+    }
   </style>
   <script type="text/javascript"
     src="https://maps.googleapis.com/maps/api/js?key=%REACT_APP_GOOGLE_PLACES_KEY%&libraries=places"></script>
+  <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+  <script
+    src="https://cdn.polyfill.io/v2/polyfill.min.js?features=fetch,requestAnimationFrame,Element.prototype.classList,URL"></script>
 </head>
 
 <body>

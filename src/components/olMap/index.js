@@ -9,6 +9,7 @@ import { Vector as VectorSource } from 'ol/source';
 import { defaults as defaultControls } from 'ol/control';
 import { GeoJSON } from 'ol/format';
 import { Point } from 'ol/geom';
+import { buffer } from 'ol/extent';
 import Feature from 'ol/Feature';
 import { addSelected } from '../../ducks/selectedPoints';
 import LayerSwitcher from 'ol-layerlist';
@@ -26,6 +27,7 @@ import moment from 'moment';
 import { setMapCoordinate } from '../../ducks/map';
 import cases from '../../ducks/cases';
 import { connect } from 'react-redux';
+import { MultiSelectControl } from './multiSelect';
 let content = null;
 
 class MapComponent extends Component {
@@ -93,6 +95,19 @@ class MapComponent extends Component {
         this.trackLayer.setSource(null);
         this.trackLayer.setSource(source);
       }
+      if (nextProps.selectedPoints !== this.props.selectedPoints) {
+        const source = this.trackLayer.getSource();
+        const features = source.getFeatures();
+        features.forEach(feature => {
+          if (nextProps.selectedPoints.indexOf(feature.get('id')) > -1) {
+            feature.set('selected', 'true');
+          } else {
+            feature.set('selected', 'false');
+          }
+        });
+        this.trackLayer.setSource(null);
+        this.trackLayer.setSource(source);
+      }
     } catch (e) {
       console.log(e);
     }
@@ -123,7 +138,7 @@ class MapComponent extends Component {
       this.trackLayer.setSource(null);
       this.trackLayer.setSource(trackSource);
       if (features.length > 1) {
-        this.map.getView().fit(trackSource.getExtent());
+        this.map.getView().fit(buffer(trackSource.getExtent(), 50000));
       } else if (features.length === 1) {
         this.map
           .getView()
@@ -133,11 +148,32 @@ class MapComponent extends Component {
     }
   };
 
+  selectMultiple(feature) {
+    const geom = feature.getGeometry();
+    const source = this.trackLayer.getSource();
+    const features = source.getFeatures();
+    const selected = [];
+    const { selectedPoints, dispatch } = this.props;
+
+    const newSelect = [];
+    features.forEach(f => {
+      if (geom.intersectsCoordinate(f.getGeometry().getCoordinates())) {
+        const id = f.get('id');
+        if (newSelect.indexOf(id) < 0) {
+          newSelect.push(id);
+        }
+      }
+    });
+    dispatch(addSelected([]));
+    dispatch(addSelected([...newSelect]));
+  }
+
   initMap() {
     try {
       const { viewport } = this.state;
+      const multiSelectCtrl = new MultiSelectControl();
       this.map = new Map({
-        controls: defaultControls().extend([]),
+        controls: defaultControls().extend([multiSelectCtrl]),
         target: 'map',
         overlays: [this.overlay],
         view: new View({
@@ -159,6 +195,9 @@ class MapComponent extends Component {
       });
       // geocoder.onAdd(this.map);
       geocoder.addTo('#geocoder');
+      multiSelectCtrl.on('drawend', feature => {
+        this.selectMultiple(feature);
+      });
       geocoder.on('result', function (e) {
         const centerTo = fromLonLat(e.result.geometry.coordinates);
         curobj.addNewPoint(centerTo);
@@ -369,10 +408,11 @@ class MapComponent extends Component {
 
 // Connect Component
 function mapStateToProps(state) {
-  const { cases } = state;
+  const { cases, selectedPoints } = state;
   return {
     cases,
     state,
+    selectedPoints,
   };
 }
 
