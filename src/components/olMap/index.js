@@ -44,6 +44,7 @@ class MapComponent extends Component {
       },
       currentEntryId: '',
     };
+    this.contextmenu = null;
     this.mapRef = createRef();
     this.map = null;
     this.trackLayer = null;
@@ -121,6 +122,8 @@ class MapComponent extends Component {
     }
     const { points, lines } = historyMapData;
     if (this.trackLayer !== null) {
+      const { selectedPoints } = this.props;
+
       const trackSource = this.trackLayer.getSource();
       trackSource.clear();
       const features = new GeoJSON({
@@ -137,6 +140,11 @@ class MapComponent extends Component {
       trackSource.addFeatures(features);
       this.trackLayer.setSource(null);
       this.trackLayer.setSource(trackSource);
+      features.forEach(f => {
+        if (selectedPoints.indexOf(f.get('id')) > -1) {
+          f.set('selected', 'true');
+        }
+      });
       if (features.length > 1) {
         this.map.getView().fit(buffer(trackSource.getExtent(), 50000));
       } else if (features.length === 1) {
@@ -272,14 +280,15 @@ class MapComponent extends Component {
       items: [],
     });
     const curobj = this;
+    this.contextmenu = contextmenu;
     contextmenu.on('beforeopen', function (evt) {
       var feature = curobj.map.forEachFeatureAtPixel(evt.pixel, function (
         ft,
-        l,
+        layer,
       ) {
         return ft;
       });
-      if (feature) {
+      if (feature && feature.get('id') !== undefined) {
         const {
           cases: { entries },
           currentEntryId,
@@ -360,8 +369,16 @@ class MapComponent extends Component {
     }
   };
 
+  disableContextMenu = () => {
+    this.contextmenu.clear();
+    this.contextmenu.disable();
+    this.contextmenu.extend(this.contextmenu.getDefaultItems());
+    this.contextmenu.close();
+  };
+
   handleMapClick = e => {
     const { currentPointId } = this.state;
+    this.disableContextMenu();
     if (currentPointId === '' || currentPointId === undefined) {
       return false;
     }

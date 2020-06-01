@@ -1,6 +1,6 @@
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { OSM as OSMSource, TileImage } from 'ol/source';
-import { Style, Icon, Fill, Stroke } from 'ol/style';
+import { Style, Icon, Fill, Stroke, Text } from 'ol/style';
 import BingMaps from 'ol/source/BingMaps.js';
 import XYZ from 'ol/source/XYZ.js';
 import { GlobalConfiguration } from './mapConfiguration';
@@ -170,9 +170,7 @@ export const styleEntryFeature = (feature, resolution) => {
   try {
     let iconUrl = '';
     const seleted =
-      feature.get('selected') === undefined
-        ? 'default'
-        : feature.get('selected');
+      feature.get('selected') === undefined ? 'false' : feature.get('selected');
     const num = feature.get('num') === undefined ? 'line' : feature.get('num');
     let trash =
       feature.get('trash') === undefined ? false : feature.get('trash');
@@ -181,33 +179,43 @@ export const styleEntryFeature = (feature, resolution) => {
     } else if (trash === 'false') {
       trash = false;
     }
-    if (!styleCache[num + seleted + trash]) {
-      if (!isNaN(num)) {
-        iconUrl = require(`../../assets/images/number-${
-          seleted === 'true' ? 'selected' : 'default'
-        }/number_${num}.png`);
-      } else {
-        iconUrl =
-          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
-      }
-      styleCache[num + seleted + trash] = new Style({
+    const fillColor = seleted === 'false' ? '#000080' : '#FF0000';
+    if (!styleCache[num + fillColor + trash]) {
+      iconUrl = require(`../../assets/images/point_marker.svg`);
+      styleCache[num + fillColor + trash] = new Style({
         image: new Icon({
-          anchor: [0.5, 36],
+          anchor: [0.5, 0.9],
           anchorXUnits: 'fraction',
-          anchorYUnits: 'pixels',
+          anchorYUnits: 'fraction',
           src: iconUrl,
+          // size: [30, 30],
+          scale: 0.04,
           opacity: trash ? 0 : 1,
+          color: fillColor,
+        }),
+        text: new Text({
+          textAlign: 'center',
+          textBaseline: 'bottom',
+          font: 'bold 16px Calibri,sans-serif',
+          text: num === 'line' || trash === true ? '' : num.toString(),
+          fill: new Fill({ color: '#ffffff' }),
+          stroke: new Stroke({ color: fillColor, width: 15 }),
+          offsetX: 0,
+          offsetY: -25,
+          placement: 'point',
+          maxAngle: 0,
+          overflow: true,
+          // rotation: rotation
         }),
         stroke: new Stroke({
           color: [255, 0, 255, 1],
           width: 2,
           lineDash: [4, 8],
           lineDashOffset: 6,
-          opacity: 1,
         }),
       });
     }
-    return [styleCache[num + seleted + trash]];
+    return [styleCache[num + fillColor + trash]];
   } catch (error) {
     console.log(error);
     return null;
